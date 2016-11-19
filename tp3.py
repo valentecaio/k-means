@@ -35,14 +35,14 @@ in:
     n is the number of centers
     points is the point matrix
 out:
-    returns a matrix with one center point in each row
+    returns a matrix with the chosen centers references
 '''
 def choseRandomicCenters(n, points):
 	nb_objet = len(points)
 	centers = []
 	i = 0
 	while (i<n) :
-		new_entry = deepcopy(points[randint(0,nb_objet-1)])
+		new_entry = points[randint(0,nb_objet-1)]
 
 		#verfify if the new line was already chosen
 		entry_exist = False
@@ -60,10 +60,10 @@ def choseRandomicCenters(n, points):
 		i += 1
 		centers.append(new_entry)
 
+	# puts group id in points last index
 	for i in range(n):
-		# remove last element, because centers
-        # doesn't have nearests-centers
 		centers[i][-1] = i
+
 	return centers
 
 def read_data(filename, skip_first_line=False, ignore_first_column=False):
@@ -260,7 +260,7 @@ def updateCenters(points, centers):
 		# from the baryCenter of this group
 		nearestPoint = nearestNeighbour(baryCenters[groupNum], points)
 
-		# substitutes old center in the centers matrix
+		# substitutes old center in centers matrix
 		centers[groupNum] = nearestPoint
 
 '''
@@ -293,11 +293,13 @@ def k_means(points, k):
 
 		baryCenters = calculateBaryCenters(points, len(centers))
 		print('barycenters:')
-		#printMatrix(baryCenters)
+		printMatrix(baryCenters)
 
 		updateCenters(points, centers)
 		print('updated centers:')
 		printMatrix(centers)
+
+	return centers
 
 
 points = generatepoints(100, 2, max_ = 1000)
