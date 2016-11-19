@@ -13,7 +13,7 @@ out:
     the first column is the id of the point,
     and the others columns are his attributs
 '''
-def generatepoints(n,dimension, min_ = 0, max_ = 100):
+def generatepoints(n, dimension, min_ = 0, max_ = 1000):
 	points = []
 	for j in range(n):
 		point = [0 for i in range(dimension+2)]
@@ -183,8 +183,11 @@ out:
 '''
 def barycenter(points, groupNum):
 	filtredPoints = pointsOfGroup(points, groupNum)
-	print(filtredPoints)
-	print(filtredPoints[0])
+	'''
+	# uncomment only to debug
+	print('filtering by group', groupNum)
+	printMatrix(filtredPoints)
+	'''
 	tot = len(filtredPoints)
 	dimension = len(filtredPoints[0])-1
 	bary = [0 for i in range(dimension)]
@@ -245,20 +248,26 @@ out:
 	the centers matrix is modified
 '''
 def updateCenters(points, centers):
-	numberOfCenters = len(centers)
-	baryCenters = calculateBaryCenters(points, numberOfCenters)
+	numberOfGroups = len(centers)
+	baryCenters = calculateBaryCenters(points, numberOfGroups)
 	# for each barycenter
-	for groupNum in range(numberOfCenters):
-		# filtres points by the iteration group number
+	for groupNum in range(len(centers)):
+		'''
+		# filters points by the iteration group number
 		# TODO: check if this filter is necessary
 		filtredPoints = pointsOfGroup(points, groupNum)
-
-		# finds the nearestpoint point in the filtredPoints
+		'''
+		# finds the nearestpoint point
 		# from the baryCenter of this group
-		nearestPoint = nearestNeighbour(baryCenters[groupNum], filtredPoints)
+		nearestPoint = nearestNeighbour(baryCenters[groupNum], points)
 
 		# substitutes old center in the centers matrix
 		centers[groupNum] = nearestPoint
+
+	# reset center group ids and remove last index
+	for i in range(numberOfGroups):
+		centers[i][0] = i
+		#centers[i].pop()
 
 '''
 description:
@@ -278,30 +287,29 @@ in:
 out:
 
 '''
-def k_means(points,k):
-	centers = choseRandomicCenters(k,points)
-	
-	for i in range(3):
+def k_means(points, k):
+	centers = choseRandomicCenters(k, points)
+	print('centers:')
+	printMatrix(centers)
+
+	for i in range(10):
 		classificatePoints(points, centers)
-	
-		centers = updateCenters(points,centers)
-		print(centers)
+		print('classified points:')
+		printMatrix(points)
+
+		baryCenters = calculateBaryCenters(points, len(centers))
+		print('barycenters:')
+		printMatrix(baryCenters)
+
+		updateCenters(points, centers)
+		print('updated centers:')
+		printMatrix(centers)
 
 
-points = generatepoints(10, 2)
+points = generatepoints(100, 2, max_ = 1000)
 print('points:')
 printMatrix(points)
 
-centers = choseRandomicCenters(3 ,points)
-print('centers:')
-printMatrix(centers)
+k_means(points, 5)
 
-for i in range(10):
-	classificatePoints(points, centers)
-	print('classified points:')
-	printMatrix(points)
-'''
-	updateCenters(points, centers)
-	print('updated centers:')
-	printMatrix(centers)
-'''
+
