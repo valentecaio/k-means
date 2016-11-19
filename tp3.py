@@ -247,11 +247,12 @@ in:
 out:
 	the centers matrix is modified
 '''
-def updateCenters(points, centers):
-	numberOfGroups = len(centers)
+def updateCenters(points, numberOfGroups):
 	baryCenters = calculateBaryCenters(points, numberOfGroups)
+
+	newCenters = []
 	# for each barycenter
-	for groupNum in range(len(centers)):
+	for groupNum in range(numberOfGroups):
 		'''
 		# filters points by the iteration group number
 		# TODO: check if this filter is necessary
@@ -261,13 +262,15 @@ def updateCenters(points, centers):
 		# from the baryCenter of this group
 		nearestPoint = nearestNeighbour(baryCenters[groupNum], points)
 
-		# substitutes old center in the centers matrix
-		centers[groupNum] = nearestPoint
+		# copies the nearestPoint to newCenters matrix
+		newCenters.append(deepcopy(nearestPoint))
 
 	# reset center group ids and remove last index
 	for i in range(numberOfGroups):
-		centers[i][0] = i
-		#centers[i].pop()
+		newCenters[i][-1] = newCenters[i][0]
+		newCenters[i][0] = i
+
+	return newCenters
 
 '''
 description:
@@ -295,13 +298,13 @@ def k_means(points, k):
 	for i in range(10):
 		classificatePoints(points, centers)
 		print('classified points:')
-		printMatrix(points)
+		#printMatrix(points)
 
 		baryCenters = calculateBaryCenters(points, len(centers))
 		print('barycenters:')
-		printMatrix(baryCenters)
+		#printMatrix(baryCenters)
 
-		updateCenters(points, centers)
+		centers = updateCenters(points, len(centers))
 		print('updated centers:')
 		printMatrix(centers)
 
