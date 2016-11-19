@@ -170,7 +170,7 @@ def classification(points, centers):
 
 '''
 description:
-
+	calculates the barycenter point of a group
 in:
 	points, the points matrix
 	groupNum, the group index
@@ -192,21 +192,23 @@ def barycenter(points, groupNum):
 		bary[0] = groupNum
 
 	return bary
-	
+
 '''
 description:
-
+	Filters the points matrix by a specific group
 in:
-
+	points, the points matrix
+	groupNumber, the group to filter
 out:
-
+	a new matrix with the filtred point references
 '''
-def pointsOfGroup(classifiedpoints, groupNumber):
-	tab = []
-	for point in classifiedpoints:
+def pointsOfGroup(classifiedPoints, groupNumber):
+	filtredPoints = []
+	for point in classifiedPoints:
 		if point[-1] == groupNumber:
-			tab.append(point)
-	return tab
+			# copy only the reference
+			filtredPoints.append(point)
+	return filtredPoints
 	
 '''
 description:
@@ -216,13 +218,13 @@ in:
 out:
 
 '''
-def barycenters(classifiedpoints, centers):
+def barycenters(classifiedPoints, centers):
 	barycenters = []
 	
 	for groupNum in range(1,len(centers)+1):
-		tab = pointsOfGroup(classifiedpoints, groupNum)
+		filtredPoints = pointsOfGroup(classifiedPoints, groupNum)
 
-		baryCenter = barycenter(tab, groupNum)
+		baryCenter = barycenter(filtredPoints, groupNum)
 		baryCenter[0] = groupNum
 		barycenters.append(baryCenter)
 	return barycenters
