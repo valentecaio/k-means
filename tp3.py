@@ -178,14 +178,15 @@ out:
 	the group barycenter point
 '''
 def barycenter(points, groupNum):
-	tot = len(points)
-	dimension = len(points[0])-1
+	filtredPoints = pointsOfGroup(points, groupNum)
+	tot = len(filtredPoints)
+	dimension = len(filtredPoints[0])-1
 	bary = [0 for i in range(dimension)]
 	# ignores the first column (point index)
 	# TODO: check this matemagic
 	for k in range(1,dimension):
 		for i in range(tot):
-			bary[k] += points[i][k]/tot
+			bary[k] += filtredPoints[i][k]/tot
 
 	# fills the first index with the group id
 	for i in range(len(bary)):
@@ -212,22 +213,21 @@ def pointsOfGroup(classifiedPoints, groupNumber):
 	
 '''
 description:
-
+	calculates and returns the barycenters of all groups
 in:
-
+	points, the points matrix
+	centers, the centers matrix
 out:
-
+	a new matrix where every row is a barycenter of a group
+	the first index of the row is the group id
 '''
-def barycenters(classifiedPoints, centers):
-	barycenters = []
+def calculateBaryCenters(points, centers):
+	baryCenters = []
 	
 	for groupNum in range(1,len(centers)+1):
-		filtredPoints = pointsOfGroup(classifiedPoints, groupNum)
-
-		baryCenter = barycenter(filtredPoints, groupNum)
-		baryCenter[0] = groupNum
-		barycenters.append(baryCenter)
-	return barycenters
+		bary = barycenter(points, groupNum)
+		baryCenters.append(bary)
+	return baryCenters
 	
 '''
 description:
@@ -238,7 +238,7 @@ out:
 
 '''
 def updateCenters(classifiedpoints,centers):
-	baryCenters = barycenters(classifiedpoints, centers)
+	baryCenters = calculateBaryCenters(classifiedpoints, centers)
 	#printMatrix(baryCenters)
 	newCenters = []
 	for i in range (1,len(baryCenters)+1):
