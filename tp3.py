@@ -9,7 +9,7 @@ in:
     dimension is the point dimension
 out:
     a matrix with one point in every line,
-    where the last column is zero,
+    whose the last column is zero,
     the first column is the id of the point,
     and the others columns are his attributs
 '''
@@ -216,15 +216,15 @@ description:
 	calculates and returns the barycenters of all groups
 in:
 	points, the points matrix
-	centers, the centers matrix
+	centersNumber, the quantity of available centers
 out:
-	a new matrix where every row is a barycenter of a group
+	a new matrix whose every row is a group barycenter
 	the first index of the row is the group id
 '''
-def calculateBaryCenters(points, centers):
+def calculateBaryCenters(points, centersNumber):
 	baryCenters = []
 	
-	for groupNum in range(1,len(centers)+1):
+	for groupNum in range(1,centersNumber+1):
 		bary = barycenter(points, groupNum)
 		baryCenters.append(bary)
 	return baryCenters
@@ -237,30 +237,27 @@ in:
 out:
 
 '''
-def updateCenters(classifiedpoints,centers):
-	baryCenters = calculateBaryCenters(classifiedpoints, centers)
-	#printMatrix(baryCenters)
+def updateCenters(points, centers):
+	baryCenters = calculateBaryCenters(points, len(centers))
+	printMatrix(baryCenters)
 	newCenters = []
-	for i in range (1,len(baryCenters)+1):
-		tab = pointsOfGroup(classifiedpoints, i)
-		a,nearestpoint = nearestNeighbour(baryCenters[i-1],tab)
-		
-		nearestpoint[0] = i
-		nearestpoint.pop()
-		newCenters.append(nearestpoint)
+	# for each barycenter
+	for i in range(1,len(baryCenters)+1):
+		tab = pointsOfGroup(points, i)
+		dist, nearestPoint = nearestNeighbour(baryCenters[i-1],tab)
+
+		nearestPoint[0] = i
+		nearestPoint.pop()
+		newCenters.append(nearestPoint)
 	#printMatrix(newCenters)
 	return newCenters
 
 '''
 description:
-
-in:
-
-out:
-
+	Prints a matrix, row by row
 '''
-def printMatrix(points):
-	for i in points:
+def printMatrix(mat):
+	for i in mat:
 		print(i)
 	print('\n')
 
