@@ -9,41 +9,45 @@ in:
     dimension is the point dimension
 out:
     returns a matrix with one point in every line,
-    whose the last column is zero,
+    whose the last column is -1,
     the first column is the id of the point,
     and the others columns are his attributs
 '''
 def generatepoints(n,dimension, min_ = 0, max_ = 100):
-	tab = []
+	points = []
 	for j in range(n):
-		sub_tab = [0 for i in range(dimension+2)]
-		'''here new''' # diff
-		sub_tab[0] = j+1
+		point = [0 for i in range(dimension+2)]
+		point[0] = j+1
 		for h in range(1,dimension+1):
-			sub_tab[h] = uniform(min_,max_)
-		tab.append(sub_tab)
-	return tab
+			point[h] = uniform(min_,max_)
+		points.append(point)
+
+	# to begin, all the points are from the group -1
+	for i in range(n):
+		points[i][-1] = -1
+
+	return points
 
 '''
 description:
 	chose n random centers from disponible point
 in:
     n is the number of centers
-    tab_obj is the point matrix
+    points is the point matrix
 out:
     returns a matrix with one center point in each row
 '''
-def choseRandomicCenters(n, tab_obj):
-	nb_objet = len(tab_obj)
-	tab_center = []
+def choseRandomicCenters(n, points):
+	nb_objet = len(points)
+	centers = []
 	i = 0
 	while (i<n) :
-		new_entry = deepcopy(tab_obj[randint(0,nb_objet-1)])
+		new_entry = deepcopy(points[randint(0,nb_objet-1)])
 
 		#verfify if the new line was already chosen
 		entry_exist = False
 		for j in range(i):
-			if new_entry == tab_center[j]:
+			if new_entry == centers[j]:
 				# if the line was already chosen, 
 				# stop this loop and continue the other
                 # in order to redo the action
@@ -54,15 +58,15 @@ def choseRandomicCenters(n, tab_obj):
 
 		# only copy point if it wasn't copied before
 		i += 1
-		tab_center.append(new_entry)
+		centers.append(new_entry)
 
 	for i in range(n):
         # recalculate id
-		tab_center[i][0] = i+1
+		centers[i][0] = i
         # remove last element, because centers
         # doesn't have nearests-centers
-		tab_center[i].pop()
-	return tab_center
+		centers[i].pop()
+	return centers
 
 def read_data(filename, skip_first_line=False, ignore_first_column=False):
     '''
@@ -218,15 +222,15 @@ description:
 	calculates and returns the barycenters of all groups
 in:
 	points, the points matrix
-	centersNumber, the quantity of available centers
+	numberOfCenters, the quantity of available centers
 out:
 	returns a new matrix whose each row is a group barycenter
 	and the first index of the row is his group id
 '''
-def calculateBaryCenters(points, centersNumber):
+def calculateBaryCenters(points, numberOfCenters):
 	baryCenters = []
 	
-	for groupNum in range(1,centersNumber+1):
+	for groupNum in range(numberOfCenters):
 		bary = barycenter(points, groupNum)
 		baryCenters.append(bary)
 	return baryCenters
@@ -241,19 +245,20 @@ out:
 	the centers matrix is modified
 '''
 def updateCenters(points, centers):
-	baryCenters = calculateBaryCenters(points, len(centers))
+	numberOfCenters = len(centers)
+	baryCenters = calculateBaryCenters(points, numberOfCenters)
 	# for each barycenter
-	for groupNum in range(1,len(centers)+1):
+	for groupNum in range(numberOfCenters):
 		# filtres points by the iteration group number
 		# TODO: check if this filter is necessary
 		filtredPoints = pointsOfGroup(points, groupNum)
 
 		# finds the nearestpoint point in the filtredPoints
 		# from the baryCenter of this group
-		nearestPoint = nearestNeighbour(baryCenters[groupNum-1], filtredPoints)
+		nearestPoint = nearestNeighbour(baryCenters[groupNum], filtredPoints)
 
 		# substitutes old center in the centers matrix
-		centers[groupNum-1] = nearestPoint
+		centers[groupNum] = nearestPoint
 
 '''
 description:
@@ -276,7 +281,6 @@ out:
 def k_means(points,k):
 	centers = choseRandomicCenters(k,points)
 	
-	
 	for i in range(3):
 		classificatePoints(points, centers)
 	
@@ -296,7 +300,8 @@ for i in range(10):
 	classificatePoints(points, centers)
 	print('classified points:')
 	printMatrix(points)
-
+'''
 	updateCenters(points, centers)
 	print('updated centers:')
 	printMatrix(centers)
+'''
