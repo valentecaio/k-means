@@ -8,7 +8,7 @@ in:
     n is the number of points,
     dimension is the point dimension
 out:
-    a matrix with one point in every line,
+    returns a matrix with one point in every line,
     whose the last column is zero,
     the first column is the id of the point,
     and the others columns are his attributs
@@ -31,7 +31,7 @@ in:
     n is the number of centers
     tab_obj is the point matrix
 out:
-    a matrix with one center point in every line
+    returns a matrix with one center point in each row
 '''
 def choseRandomicCenters(n, tab_obj):
 	nb_objet = len(tab_obj)
@@ -123,7 +123,7 @@ description:
 in:
 	two points
 out:
-	the euclidean distance between the two points
+	returns the euclidean distance between the two points
 '''
 def euclideanDistance(point_1,point_2):
 	dimension = min(len(point_1),len(point_2))
@@ -139,8 +139,7 @@ in:
 	point, is the observed point
 	neighbours, is the neighbours list of the observed point
 out:
-	the minimum distance found and
-	the reference of the nearest neighbour
+	returns the reference of the nearest neighbour
 '''
 def nearestNeighbour(point, neighbours):
 	# to begin, the first neighbour is the nearest one
@@ -152,7 +151,7 @@ def nearestNeighbour(point, neighbours):
 		if distance < minDistance:
 			minDistance = distance
 			nearest = neighbours[i]
-	return minDistance, nearest
+	return nearest
 
 '''
 description:
@@ -161,11 +160,12 @@ in:
 	points, is the points matrix
 	centers, is the centers matrix
 out:
-	add the group id in each point last column
+	the points matrix is modified
+	the function adds the group id in each point last column
 '''
-def classification(points, centers):
+def classificatePoints(points, centers):
 	for point in points:
-		distance, center = nearestNeighbour(point, centers)
+		center = nearestNeighbour(point, centers)
 		point[-1] = center[0]
 
 '''
@@ -175,10 +175,12 @@ in:
 	points, the points matrix
 	groupNum, the group index
 out:
-	the group barycenter point
+	returns the group barycenter point
 '''
 def barycenter(points, groupNum):
 	filtredPoints = pointsOfGroup(points, groupNum)
+	print(filtredPoints)
+	print(filtredPoints[0])
 	tot = len(filtredPoints)
 	dimension = len(filtredPoints[0])-1
 	bary = [0 for i in range(dimension)]
@@ -201,7 +203,7 @@ in:
 	points, the points matrix
 	groupNumber, the group to filter
 out:
-	a new matrix with the filtred point references
+	returns a new matrix with the filtred point references
 '''
 def pointsOfGroup(classifiedPoints, groupNumber):
 	filtredPoints = []
@@ -218,8 +220,8 @@ in:
 	points, the points matrix
 	centersNumber, the quantity of available centers
 out:
-	a new matrix whose every row is a group barycenter
-	the first index of the row is the group id
+	returns a new matrix whose each row is a group barycenter
+	and the first index of the row is his group id
 '''
 def calculateBaryCenters(points, centersNumber):
 	baryCenters = []
@@ -231,26 +233,27 @@ def calculateBaryCenters(points, centersNumber):
 	
 '''
 description:
-
+	recalculates group centers based on group barycenters
 in:
-
+	points, the points matrix
+	centers, the centers matrix
 out:
-
+	the centers matrix is modified
 '''
 def updateCenters(points, centers):
 	baryCenters = calculateBaryCenters(points, len(centers))
-	printMatrix(baryCenters)
-	newCenters = []
 	# for each barycenter
-	for i in range(1,len(baryCenters)+1):
-		tab = pointsOfGroup(points, i)
-		dist, nearestPoint = nearestNeighbour(baryCenters[i-1],tab)
+	for groupNum in range(1,len(centers)+1):
+		# filtres points by the iteration group number
+		# TODO: check if this filter is necessary
+		filtredPoints = pointsOfGroup(points, groupNum)
 
-		nearestPoint[0] = i
-		nearestPoint.pop()
-		newCenters.append(nearestPoint)
-	#printMatrix(newCenters)
-	return newCenters
+		# finds the nearestpoint point in the filtredPoints
+		# from the baryCenter of this group
+		nearestPoint = nearestNeighbour(baryCenters[groupNum-1], filtredPoints)
+
+		# substitutes old center in the centers matrix
+		centers[groupNum-1] = nearestPoint
 
 '''
 description:
@@ -275,49 +278,25 @@ def k_means(points,k):
 	
 	
 	for i in range(3):
-		classification(points, centers)
+		classificatePoints(points, centers)
 	
 		centers = updateCenters(points,centers)
 		print(centers)
-		
-		
-	
-	
 
 
-points = generatepoints(10,2)
+points = generatepoints(10, 2)
 print('points:')
 printMatrix(points)
 
-centers = choseRandomicCenters(3,points)
+centers = choseRandomicCenters(3 ,points)
 print('centers:')
 printMatrix(centers)
 
-classification(points, centers)
-print('classified points:')
-printMatrix(points)
+for i in range(10):
+	classificatePoints(points, centers)
+	print('classified points:')
+	printMatrix(points)
 
-centers = updateCenters(points,centers)
-print('updated centers:')
-printMatrix(centers)
-
-classification(points, centers)
-print('classified points:')
-printMatrix(points)
-'''
-centers = updateCenters(points,centers)
-print('updated centers:')
-printMatrix(centers)
-
-classification(points, centers)
-print('classified points:')
-printMatrix(points)
-'''
-
-
-'''
-for i in center:
-	print i	
-
-dist = euclideanDistance(point[2],point[1])
-print dist'''
+	updateCenters(points, centers)
+	print('updated centers:')
+	printMatrix(centers)
