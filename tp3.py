@@ -61,15 +61,15 @@ def choseRandomicCenters(n, points):
 		centers.append(new_entry)
 
 	for i in range(n):
-        # recalculate id
+		# recalculate id
 		centers[i][0] = i
-        # remove last element, because centers
+		# remove last element, because centers
         # doesn't have nearests-centers
 		centers[i].pop()
 	return centers
 
 def read_data(filename, skip_first_line=False, ignore_first_column=False):
-    '''
+	'''
     Loads data from a csv file and returns the corresponding list.
     All data are expected to be floats, except in the first column.
 
@@ -87,19 +87,19 @@ def read_data(filename, skip_first_line=False, ignore_first_column=False):
         when the first column is not ignored.
     '''
 
-    f = open(filename, 'r')
-    if skip_first_line:
-        f.readline()
+	f = open(filename, 'r')
+	if skip_first_line:
+		f.readline()
 
-    data = []
-    for line in f:
-        line = line.split(",")
-        line[1:] = [float(x) for x in line[1:]]
-        if ignore_first_column:
-            line = line[1:]
-        data.append(line)
-    f.close()
-    return data
+	data = []
+	for line in f:
+		line = line.split(",")
+		line[1:] = [float(x) for x in line[1:]]
+		if ignore_first_column:
+			line = line[1:]
+		data.append(line)
+	f.close()
+	return data
 
 
 def write_data(data, filename):
