@@ -172,20 +172,26 @@ def classification(points, centers):
 description:
 
 in:
-
+	points, the points matrix
+	groupNum, the group index
 out:
-
+	the group barycenter point
 '''
-def barycenter(points):
+def barycenter(points, groupNum):
 	tot = len(points)
-	barycenter = [0 for i in range (len(points[0]))]
-	# ignore the first column (point index)
-	# and the last (group index)
-	for k in range (1,len(points[0])-1):
-		for i in range (tot):
-			barycenter[k] += points[i][k]/tot
-	
-	return barycenter 
+	dimension = len(points[0])-1
+	bary = [0 for i in range(dimension)]
+	# ignores the first column (point index)
+	# TODO: check this matemagic
+	for k in range(1,dimension):
+		for i in range(tot):
+			bary[k] += points[i][k]/tot
+
+	# fills the first index with the group id
+	for i in range(len(bary)):
+		bary[0] = groupNum
+
+	return bary
 	
 '''
 description:
@@ -216,7 +222,7 @@ def barycenters(classifiedpoints, centers):
 	for groupNum in range(1,len(centers)+1):
 		tab = pointsOfGroup(classifiedpoints, groupNum)
 
-		baryCenter = barycenter(tab)
+		baryCenter = barycenter(tab, groupNum)
 		baryCenter[0] = groupNum
 		barycenters.append(baryCenter)
 	return barycenters
@@ -299,7 +305,7 @@ printMatrix(centers)
 classification(points, centers)
 print('classified points:')
 printMatrix(points)
-
+'''
 centers = updateCenters(points,centers)
 print('updated centers:')
 printMatrix(centers)
@@ -307,7 +313,7 @@ printMatrix(centers)
 classification(points, centers)
 print('classified points:')
 printMatrix(points)
-
+'''
 
 
 '''
