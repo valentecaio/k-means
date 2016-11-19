@@ -61,11 +61,9 @@ def choseRandomicCenters(n, points):
 		centers.append(new_entry)
 
 	for i in range(n):
-		# recalculate id
-		centers[i][0] = i
 		# remove last element, because centers
         # doesn't have nearests-centers
-		centers[i].pop()
+		centers[i][-1] = i
 	return centers
 
 def read_data(filename, skip_first_line=False, ignore_first_column=False):
@@ -170,7 +168,7 @@ out:
 def classificatePoints(points, centers):
 	for point in points:
 		center = nearestNeighbour(point, centers)
-		point[-1] = center[0]
+		point[-1] = center[-1]
 
 '''
 description:
@@ -264,11 +262,6 @@ def updateCenters(points, numberOfGroups):
 
 		# copies the nearestPoint to newCenters matrix
 		newCenters.append(deepcopy(nearestPoint))
-
-	# reset center group ids and remove last index
-	for i in range(numberOfGroups):
-		newCenters[i][-1] = newCenters[i][0]
-		newCenters[i][0] = i
 
 	return newCenters
 
