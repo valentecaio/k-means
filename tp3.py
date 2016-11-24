@@ -5,24 +5,21 @@ from copy import deepcopy
 
 ################################################## READ AND WRITE FUNCTIONS #############################################
 
+'''
+Loads data from a csv file and returns the corresponding list.
+All data are expected to be floats, except in the first column.
 
-def read_iris_data(filename):
-	'''
-	
-	Loads data from a csv file and returns the corresponding list.
-	All data are expected to be floats, except in the first column.
-	
-	@param filename: csv file name.
-	
-	
-	@return: a list of lists, each list being a row in the data file.
-		Rows are returned in the same order as in the file.
-		They contains floats, except for the 1st element which is a string
-		when the first column is not ignored.
-	'''
+@param filename: csv file name.
+
+
+@return: a list of lists, each list being a row in the data file.
+	Rows are returned in the same order as in the file.
+	They contains floats, except for the 1st element which is a string
+	when the first column is not ignored.
+'''
+def read_iris_data():
 	#same as read_data, modified so it can work ok the iris files
-	
-	f = open(filename,'r')
+	f = open("irisData.txt",'r')
 	data = []
 	i = 1
 	for line in f:
@@ -250,7 +247,7 @@ def barycenter(points, groupNum):
 	'''
 	# uncomment only to debug
 	print('filtering by group', groupNum)
-	printMatrix(filtredPoints)
+	printMatrix(filtredPoints, str('filtering by group' + str(groupNum)) )
 	'''
 	tot = len(filtredPoints)
 	#the exception of a group with no points
@@ -337,7 +334,8 @@ def updateCenters(points, centers,iris=False):
 description:
 	Prints a matrix, row by row
 '''
-def printMatrix(mat):
+def printMatrix(mat, title = ''):
+	print(title)
 	for i in mat:
 		print(i)
 	print('\n')
@@ -346,47 +344,7 @@ def printMatrix(mat):
 
 '''
 description:
-
-	@param: -The datas number 
-			-The clusters number
-			-The dimension (number of attributs)
-			
-	@return:-Centers 
-
-'''
-def k_means(points,k):
-	# TODO: points to generate
-	#points = generatepoints(n, d)
-	write_data(points, "nonClassifiedDatas.csv")
-	print('points:')
-	printMatrix(points)
-	centers = choseRandomicCenters(k, points)
-	print('centers:')
-	printMatrix(centers)
-	No_change=False
-	i=0
-	#if there is no change in datas the classification is done and the algorithms stops also if the iterations number is above 300
-	while ((not No_change) and i<300):
-		No_change=classificatePoints(points, centers)
-		print('classified points:')
-		printMatrix(points)
-
-		baryCenters = calculateBaryCenters(points, len(centers))
-		print('barycenters:')
-		printMatrix(baryCenters)
-
-		updateCenters(points, centers)
-		print('updated centers:')
-		printMatrix(centers)
-		i+=1
-	write_data(points, "results.csv", writeCluster = True)
-	write_centers(centers, "centers.csv")
-	return points,centers
-
-
-'''
-description:
-	-Read the iris datas
+	-Read the datas
 	-Save those datas in an adequate form
 	-Choose 3 random centroids among those datas
 	-Classify datas
@@ -395,39 +353,41 @@ description:
 	-Reclassify datas
 		@return: updated centrois
 
+	@param: -The datas number 
+			-The dimension (number of attributs)
+			-The optional iris
+	@return:-Centers 
 
 '''
-def k_means_iris(points,k):
-	# TODO: points
-	#points = read_iris_data("irisData.txt")
-	write_data(points, "iris_nonClassifiedDatas.csv")
-	print('points:')
-	printMatrix(points)
-	#TODO: put clusters to 3
+def k_means(points, k, iris = False):
+	# TODO: verify this write_data
+	fileToWrite = "iris_nonClassifiedDatas.csv" if iris else "nonClassifiedDatas.csv"
+	write_data(points, fileToWrite)
 	centers = choseRandomicCenters(k, points)
-	print('centers:')
-	printMatrix(centers)
+	printMatrix(points, 'points')
+	printMatrix(centers, 'centers')
 	No_change=False
 	i=0
-	#if there is no change in datas the classification is done and the algorithms stops also if the iterations number is above 300
-	while (i<50):
-		No_change=classificatePoints(points, centers,True)
-		print('classified points:')
-		printMatrix(points)
-		write_data(points, "iris_results.csv", writeCluster = True)
+	# if there is no change in datas the classification is done and the algorithms stops
+	# also stops if the iterations number reachs the maximum
+	while ((not No_change) and i<300):
+		No_change=classificatePoints(points, centers)
+		printMatrix(points, 'classified points:')
 
 		baryCenters = calculateBaryCenters(points, len(centers))
-		print('barycenters:')
-		printMatrix(baryCenters)
+		printMatrix(baryCenters, 'barycenters:')
 
-		updateCenters(points, centers,True)
-		print('updated centers:')
-		printMatrix(centers)
-		write_centers(centers, "iris_centers.csv")
+		updateCenters(points, centers)
+		printMatrix(centers, 'updated centers:')
 		i+=1
-	#nbr_errors(points)
-	return centers
-	
+		
+	# writes the results
+	fileToWrite = "iris_results.csv" if iris else "results.csv"
+	write_data(points, fileToWrite, writeCluster = True)
+	fileToWrite = "iris_centers.csv" if iris else "centers.csv"
+	write_centers(centers, fileToWrite)
+
+	return points,centers
 
 ################################################## Iris Error FUNCTION #############################################
 def nbr_errors(points):
@@ -512,7 +472,7 @@ def elbow(data):
 	Vsums = []
 	for k in range(2,10):
 		print(k)
-		centers = k_means_iris(data,k)
+		centers = k_means(data, k, iris = True)
 		Vsums.append(variance(data,centers))
 	ks =[i for i in range(2,10)]
 	plt.xlabel("nombres de groupes")
@@ -522,13 +482,7 @@ def elbow(data):
 	plt.show()
 
 
-k_means(100,3,3)
-
-
 #elbow(generatepoints(400,4))
-points = read_iris_data("irisData.txt")
-elbow(points)
-
-
-#k_means_iris()
+points = read_iris_data()
+#elbow(points)
 
