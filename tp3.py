@@ -35,9 +35,7 @@ def read_iris_data(filename):
 	f.close()
 	return data
 
-
-
-def write_data(datas, filename):
+def write_data(datas, filename, writeCluster = False):
 	'''
 	Writes data in a csv file.
 
@@ -49,29 +47,17 @@ def write_data(datas, filename):
 	
 	f = open(filename, 'w')
 	f.write(';'.join(["# no_obseravtion"]+["attribut_"+str(i+1) for i in range(len(datas[0])-2)]))
+	if writeCluster:
+		f.write(';'.join(["no_classe"]))
 	f.write('\n')
 	
 	for data in datas:
-		f.write(';'.join([repr(data[i]) for i in range (len(data)-1)]))
+		f.write(';'.join([repr(data[i]) for i in range(len(data)-1)]))
+		if writeCluster:
+			f.write(';'.join(repr(data[-1])))
 		f.write('\n')
 	f.close()
-def write_classified_data(datas, filename):
-	'''
-	Writes data in a csv file.
 
-	@param data: a list of lists
-
-	@param filename: the path of the file in which data is written.
-	The file is created if necessary; if it exists, it is overwritten.
-	'''
-	
-	f = open(filename,"w")
-	f.write(';'.join(["# no_obseravtion"]+["attribut_"+str(i+1) for i in range(len(datas[0])-2)]+["no_classe"]))
-	f.write('\n')
-	for data in datas:
-		f.write(';'.join([repr(x) for x in data]))
-		f.write('\n')
-	f.close()
 def write_centers(centers, filename):
 	'''
 	Writes centroids in a csv file
@@ -95,7 +81,7 @@ def write_centers(centers, filename):
 
 '''
 description:
-
+	generates n random points in a specific interval of values
 in:
 	n is the number of points,
 	dimension is the point dimension
@@ -231,7 +217,7 @@ def nearestNeighbour(point, neighbours,iris=False):
 
 '''
 description:
-	group points according to theirs nearest centers
+	agroups points according to theirs nearest centers
 @param:
 	points, is the points matrix
 	centers, is the centers matrix
@@ -284,6 +270,7 @@ def barycenter(points, groupNum):
 	
 		return bary
 	return points[randint(0,len(points)-1)]
+	
 '''
 description:
 	Filters the points matrix by a specific group
@@ -383,7 +370,6 @@ def k_means(points,k):
 		No_change=classificatePoints(points, centers)
 		print('classified points:')
 		printMatrix(points)
-		write_classified_data(points, "results.csv")
 
 		baryCenters = calculateBaryCenters(points, len(centers))
 		print('barycenters:')
@@ -392,9 +378,9 @@ def k_means(points,k):
 		updateCenters(points, centers)
 		print('updated centers:')
 		printMatrix(centers)
-		write_centers(centers, "centers.csv")
 		i+=1
-		
+	write_data(points, "results.csv", writeCluster = True)
+	write_centers(centers, "centers.csv")
 	return points,centers
 
 
@@ -428,7 +414,7 @@ def k_means_iris(points,k):
 		No_change=classificatePoints(points, centers,True)
 		print('classified points:')
 		printMatrix(points)
-		write_classified_data(points, "iris_results.csv")
+		write_data(points, "iris_results.csv", writeCluster = True)
 
 		baryCenters = calculateBaryCenters(points, len(centers))
 		print('barycenters:')
@@ -536,10 +522,11 @@ def elbow(data):
 	plt.show()
 
 
-#k_means(100,3,3)
+k_means(100,3,3)
+
 
 #elbow(generatepoints(400,4))
-points=read_iris_data("irisData.txt")
+points = read_iris_data("irisData.txt")
 elbow(points)
 
 
