@@ -1,5 +1,5 @@
 ##########################################IMPORTS############################
-from tp3 import *
+from k_means import *
 import matplotlib.pyplot as plt
 ########################################EXEC#################################
 
@@ -9,21 +9,19 @@ print("2- appliquer kmeans sur des données générée aléatoirement")
 print("3- visualiser le comportement de l'aglorithme en 2D")
 mode = int(input("choisissez le mode: "))
 
-if mode ==1:
+if mode == 1:
     k_means_iris()
     print ("Verifiez les fichiers iris_centers et iris_results pour voir les resultats de l'appel.")
     #print "le nombre d'erreurs faites est: "+str(nbr_errors(groups))
    
-
-if mode == 2 :
+elif mode == 2 :
     nbrPoints = int(input("choisissez le nombre de points: "))
     nbrAttributs = int(input("choisissez le nombre d'attributs de chaque point(la dimension): "))
     nbrClusters = int(input("choisissez le nombre de classes: "))
     k_means(nbrPoints,nbrClusters,nbrAttributs)
     print ("Verifiez les fichiers centroids et results pour voir les resultats de l'appel")
     
-
-elif mode==3 :
+elif mode == 3 :
     print("###########################################################")
     
     nbrPoints = int(input("choisissez le nombre de points: "))
