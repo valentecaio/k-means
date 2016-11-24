@@ -1,17 +1,109 @@
+# -*- coding: utf-8 -*-
+################################################## IMPORTS #############################################
 from random import uniform, randint
 from copy import deepcopy
+
+################################################## READ AND WRITE FUNCTIONS #############################################
+
+
+def read_iris_data(filename):
+	'''
+	
+	Loads data from a csv file and returns the corresponding list.
+	All data are expected to be floats, except in the first column.
+	
+	@param filename: csv file name.
+	
+	
+	@return: a list of lists, each list being a row in the data file.
+		Rows are returned in the same order as in the file.
+		They contains floats, except for the 1st element which is a string
+		when the first column is not ignored.
+	'''
+	#same as read_data, modified so it can work ok the iris files
+	
+	f = open(filename,'r')
+	data = []
+	i = 1
+	for line in f:
+		line = line.split(",")
+		line.pop() #remove the last element in the line wich is a comment
+		line = [ float(x) for x in line ]
+		line = [i] + line+[-1] #add a column for data index and an other for classification wich take -1 as default value
+		i += 1
+		data.append(line)
+	f.close()
+	return data
+
+
+
+def write_data(datas, filename):
+	'''
+	Writes data in a csv file.
+
+	@param data: a list of lists
+
+	@param filename: the path of the file in which data is written.
+	The file is created if necessary; if it exists, it is overwritten.
+	'''
+	
+	f = open(filename, 'w')
+	f.write(';'.join(["# no_obseravtion"]+["attribut_"+str(i+1) for i in range(len(datas[0])-2)]))
+	f.write('\n')
+	
+	for data in datas:
+		f.write(';'.join([repr(data[i]) for i in range (len(data)-1)]))
+		f.write('\n')
+	f.close()
+def write_classified_data(datas, filename):
+	'''
+	Writes data in a csv file.
+
+	@param data: a list of lists
+
+	@param filename: the path of the file in which data is written.
+	The file is created if necessary; if it exists, it is overwritten.
+	'''
+	
+	f = open(filename,"w")
+	f.write(';'.join(["# no_obseravtion"]+["attribut_"+str(i+1) for i in range(len(datas[0])-2)]+["no_classe"]))
+	f.write('\n')
+	for data in datas:
+		f.write(';'.join([repr(x) for x in data]))
+		f.write('\n')
+	f.close()
+def write_centers(centers, filename):
+	'''
+	Writes centroids in a csv file
+	@param centroids: a hashtable containing the attributs of each center
+	@param filename: the path of the file in which data is written.
+		The file is created if necessary; if it exists, it is overwritten.
+	'''
+	f = open(filename,"w")
+	f.write(';'.join(["# no_center"]+["attribut_"+str(i+1) for i in range(len(centers[0])-2)]))
+	f.write('\n')
+	for j in range (len (centers)):
+		f.write(';'.join([str(j)]+[repr(centers[j][i]) for i in range (1,len(centers[j])-1)]))
+		f.write('\n')
+	f.close()
+
+
+
+##################################################  FUNCTIONS #############################################
+
+
 
 '''
 description:
 
 in:
-    n is the number of points,
-    dimension is the point dimension
+	n is the number of points,
+	dimension is the point dimension
 out:
-    returns a matrix with one point in every line,
-    whose the last column is -1,
-    the first column is the id of the point,
-    and the others columns are his attributs
+	returns a matrix with one point in every line,
+	whose the last column is -1,
+	the first column is the id of the point,
+	and the others columns are his attributs
 '''
 def generatepoints(n, dimension, min_ = 0, max_ = 1000):
 	points = []
@@ -32,10 +124,10 @@ def generatepoints(n, dimension, min_ = 0, max_ = 1000):
 description:
 	chose n random centers from disponible point
 in:
-    n is the number of centers
-    points is the point matrix
+	n is the number of centers
+	points is the point matrix
 out:
-    returns a matrix with the chosen centers references
+	returns a matrix with the chosen centers references
 '''
 def choseRandomicCenters(n, points):
 	nb_objet = len(points)
@@ -50,7 +142,7 @@ def choseRandomicCenters(n, points):
 			if new_entry == centers[j]:
 				# if the line was already chosen, 
 				# stop this loop and continue the other
-                # in order to redo the action
+				# in order to redo the action
 				entry_exist = True
 				break
 		if entry_exist:
@@ -66,90 +158,72 @@ def choseRandomicCenters(n, points):
 
 	return centers
 
-def read_data(filename, skip_first_line=False, ignore_first_column=False):
-	'''
-    Loads data from a csv file and returns the corresponding list.
-    All data are expected to be floats, except in the first column.
 
-    @param filename: csv file name.
-
-    @param skip_first_line: if True, the first line is not read.
-        Default value: False.
-
-@param ignore_first_column: if True, the first column is ignored.
-        Default value: False.
-
-    @return: a list of lists, each list being a row in the data file.
-        Rows are returned in the same order as in the file.
-        They contains floats, except for the 1st element which is a string
-        when the first column is not ignored.
-    '''
-
-	f = open(filename, 'r')
-	if skip_first_line:
-		f.readline()
-
-	data = []
-	for line in f:
-		line = line.split(",")
-		line[1:] = [float(x) for x in line[1:]]
-		if ignore_first_column:
-			line = line[1:]
-		data.append(line)
-	f.close()
-	return data
-
-
-def write_data(data, filename):
-    '''
-    Writes data in a csv file.
-
-    @param data: a list of lists
-
-    @param filename: the path of the file in which data is written.
-    The file is created if necessary; if it exists, it is overwritten.
-    '''
-    # If you're curious, look at python's module csv instead, which offers
-    # more powerful means to write (and read!) csv files.
-    f = open(filename, 'w')
-    for item in data:
-        f.write(','.join([repr(x) for x in item]))
-        f.write('\n')
-    f.close()
 
 '''
 description:
 	calculate the euclidean distance between two points.
 	if the points have differents dimensions,
 	the smallest dimension will be considered in the calcul
-in:
+@param:
 	two points
-out:
+@returns:
 	returns the euclidean distance between the two points
 '''
 def euclideanDistance(point_1,point_2):
+	
 	dimension = min(len(point_1),len(point_2))
 	s = 0
 	for i in range (1,dimension):
 		s += (point_1[i]-point_2[i])**2
-	return s**0.5
+	return s**(0.5)
+	'''
+	coeff = [0.7826,0.4194,0.9490,0.9565]
+	distance = 0
+	for i in range(1,len(point_1)-1):
+		distance += coeff[i-1]*(point_1[i] - point_2[i])**2
+	distance = distance**0.5
+	return distance
+	'''
+def distance_iris(point_1,point_2):
+	'''
+	computes the euclidian distance taking in consideration the 		iris parametrs
+	standardized Euclidean distance
+	'''
+	
+	
+	coeff = [0.7826,0.4194,0.9490,0.9565]
+	distance = 0
+	for i in range(1,len(point_1)-1):
+		distance += coeff[i-1]*(point_1[i] - point_2[i])**2
+	distance = distance**0.5
+	return distance
+	
+
+def which_distance(point_1,point_2,iris=False):
+	'''
+	make a decision to chose which distance we are going to use
+	'''
+	if iris:
+		return distance_iris(point_1,point_2)
+	return euclideanDistance(point_1,point_2)
 
 '''
 description:
 	find the nearest neighbour from a point
-in:
+@param:
 	point, is the observed point
 	neighbours, is the neighbours list of the observed point
-out:
+@return:
 	returns the reference of the nearest neighbour
 '''
-def nearestNeighbour(point, neighbours):
+def nearestNeighbour(point, neighbours,iris=False):
 	# to begin, the first neighbour is the nearest one
-	minDistance = euclideanDistance(point, neighbours[0])
+	minDistance = which_distance(point,neighbours[0],iris)
 	nearest = neighbours[0]
 
 	for i in range(1,len(neighbours)):
-		distance = euclideanDistance(point, neighbours[i])
+		distance =which_distance(point,neighbours[i],iris)
 		if distance < minDistance:
 			minDistance = distance
 			nearest = neighbours[i]
@@ -158,56 +232,65 @@ def nearestNeighbour(point, neighbours):
 '''
 description:
 	group points according to theirs nearest centers
-in:
+@param:
 	points, is the points matrix
 	centers, is the centers matrix
-out:
+@return:
 	the points matrix is modified
 	the function adds the group id in each point last column
+	the stop condition to stop classifying
 '''
-def classificatePoints(points, centers):
+def classificatePoints(points, centers,iris=False):
+	No_change=True
+	previous_points=deepcopy(points)
 	for point in points:
-		center = nearestNeighbour(point, centers)
+		center = nearestNeighbour(point, centers,iris)
 		point[-1] = center[-1]
-
+	if previous_points==points :
+		return No_change
+	return False
 '''
 description:
 	calculates the barycenter point of a group
-in:
+@param:
 	points, the points matrix
 	groupNum, the group index
-out:
+@return:
 	returns the group barycenter point
 '''
 def barycenter(points, groupNum):
 	filtredPoints = pointsOfGroup(points, groupNum)
+	
 	'''
 	# uncomment only to debug
 	print('filtering by group', groupNum)
 	printMatrix(filtredPoints)
 	'''
 	tot = len(filtredPoints)
-	dimension = len(filtredPoints[0])-1
-	bary = [0 for i in range(dimension)]
-	# ignores the first column (point index)
-	# TODO: check this matemagic
-	for k in range(1,dimension):
-		for i in range(tot):
-			bary[k] += filtredPoints[i][k]/tot
-
-	# fills the first index with the group id
-	for i in range(len(bary)):
-		bary[0] = groupNum
-
-	return bary
-
+	#the exception of a group with no points
+	if tot!=0:
+		#dimension ignores the first and the last column
+		dimension = len(filtredPoints[0])-2
+		bary = [0 for i in range(dimension+1)]
+		# ignores the first column (point index)
+		
+		for k in range(1,dimension+1):
+			for i in range(tot):
+				bary[k] += filtredPoints[i][k]/tot
+	
+		# fills the first index with the group id
+		for i in range(len(bary)):
+			bary[0] = groupNum
+	
+		return bary
+	return points[randint(0,len(points)-1)]
 '''
 description:
 	Filters the points matrix by a specific group
-in:
+@param:
 	points, the points matrix
 	groupNumber, the group to filter
-out:
+@return:
 	returns a new matrix with the filtred point references
 '''
 def pointsOfGroup(classifiedPoints, groupNumber):
@@ -221,10 +304,10 @@ def pointsOfGroup(classifiedPoints, groupNumber):
 '''
 description:
 	calculates and returns the barycenters of all groups
-in:
+@param:
 	points, the points matrix
 	numberOfCenters, the quantity of available centers
-out:
+@return:
 	returns a new matrix whose each row is a group barycenter
 	and the first index of the row is his group id
 '''
@@ -245,7 +328,7 @@ in:
 out:
 	the centers matrix is modified
 '''
-def updateCenters(points, centers):
+def updateCenters(points, centers,iris=False):
 	numberOfGroups = len(centers)
 	baryCenters = calculateBaryCenters(points, numberOfGroups)
 
@@ -258,7 +341,7 @@ def updateCenters(points, centers):
 		'''
 		# finds the nearestpoint point
 		# from the baryCenter of this group
-		nearestPoint = nearestNeighbour(baryCenters[groupNum], points)
+		nearestPoint = nearestNeighbour(baryCenters[groupNum], points,iris)
 
 		# substitutes old center in centers matrix
 		centers[groupNum] = nearestPoint
@@ -272,24 +355,35 @@ def printMatrix(mat):
 		print(i)
 	print('\n')
 
+################################################## MAIN FUNCTIONS #############################################
 
 '''
 description:
 
-in:
-
-out:
+	@param: -The datas number 
+			-The clusters number
+			-The dimension (number of attributs)
+			
+	@return:-Centers 
 
 '''
-def k_means(points, k):
+def k_means(points,k):
+	# TODO: points to generate
+	#points = generatepoints(n, d)
+	write_data(points, "nonClassifiedDatas.csv")
+	print('points:')
+	printMatrix(points)
 	centers = choseRandomicCenters(k, points)
 	print('centers:')
 	printMatrix(centers)
-
-	for i in range(10):
-		classificatePoints(points, centers)
+	No_change=False
+	i=0
+	#if there is no change in datas the classification is done and the algorithms stops also if the iterations number is above 300
+	while ((not No_change) and i<300):
+		No_change=classificatePoints(points, centers)
 		print('classified points:')
 		printMatrix(points)
+		write_classified_data(points, "results.csv")
 
 		baryCenters = calculateBaryCenters(points, len(centers))
 		print('barycenters:')
@@ -298,14 +392,156 @@ def k_means(points, k):
 		updateCenters(points, centers)
 		print('updated centers:')
 		printMatrix(centers)
+		write_centers(centers, "centers.csv")
+		i+=1
+		
+	return points,centers
 
+
+'''
+description:
+	-Read the iris datas
+	-Save those datas in an adequate form
+	-Choose 3 random centroids among those datas
+	-Classify datas
+	-Upload several times centroids and datas by calculating groups barycenters
+	-Save datas and centroids in a csv file  
+	-Reclassify datas
+		@return: updated centrois
+
+
+'''
+def k_means_iris(points,k):
+	# TODO: points
+	#points = read_iris_data("irisData.txt")
+	write_data(points, "iris_nonClassifiedDatas.csv")
+	print('points:')
+	printMatrix(points)
+	#TODO: put clusters to 3
+	centers = choseRandomicCenters(k, points)
+	print('centers:')
+	printMatrix(centers)
+	No_change=False
+	i=0
+	#if there is no change in datas the classification is done and the algorithms stops also if the iterations number is above 300
+	while (i<50):
+		No_change=classificatePoints(points, centers,True)
+		print('classified points:')
+		printMatrix(points)
+		write_classified_data(points, "iris_results.csv")
+
+		baryCenters = calculateBaryCenters(points, len(centers))
+		print('barycenters:')
+		printMatrix(baryCenters)
+
+		updateCenters(points, centers,True)
+		print('updated centers:')
+		printMatrix(centers)
+		write_centers(centers, "iris_centers.csv")
+		i+=1
+	#nbr_errors(points)
 	return centers
+	
+
+################################################## Iris Error FUNCTION #############################################
+def nbr_errors(points):
+	'''
+	computes the number of errors on a kmeans algorithm call on iris data
+	@param groups : a hashtable containing the number of the point as keys and the correspondant group as values
+	@return : the number of errors
+	'''
+	groups = [-1,-1,-1]
+	i = 0
+	for tuple in [[0,50],[50,100],[100,150]]:
+		c = [0,0,0]
+		for k in range(tuple[0], tuple[1]):
+			c[points[k][-1]] += 1	
+		groups[i] = c.index(max(c))
+		i += 1
+	
+	
+	
+	a=0
+	b=0
+	d=0	
+	
+	
+	error = 0
+	for point in points :
+		if point[0]<=50 :
+			if point[-1] == groups[0] :
+				a+=1
+			elif point[-1] == groups[1] :
+				b+=1
+				error+=1
+			else :
+				d+=1
+				error+=1
+				
+		if point[0]>50 and point[0]<=100:
+			if point[-1] == groups[0] :
+				a+=1
+				error+=1
+			elif point[-1] == groups[1] :
+				b+=1
+			else:
+				d+=1
+				error+=1
+				
+		if point[0]>100 and point[0]<=150:
+			if point[-1] == groups[0] :
+				a+=1
+				error+=1
+			elif point[-1] == groups[1] :
+				b+=1
+				error+=1
+			else:
+				d+=1
+				
+	print("Nous obtenons des groupes de: ",a,b,d,groups)
+	print("Le nombre d'erreurs est: ",error)
+	return error
+
+################################################## Iris TESTS (Elbow method) #############################################
+
+def variance(data,centers):
+	'''
+	computes the sum of squared error of a kmeans call
+	'''
+	V = 0
+	groupsNumber=len(centers)
+	for i in range (groupsNumber):
+		partition=pointsOfGroup(data,i)
+		for point in partition :
+			dist = euclideanDistance(point,centers[i])
+			V += (dist)**2
+		return V
+
+def elbow(data):
+	'''
+	draws the elbow graph of 9 kmeans call for k from 2 to 9
+	'''
+	import matplotlib.pyplot as plt
+	
+	Vsums = []
+	for k in range(2,10):
+		print(k)
+		centers = k_means_iris(data,k)
+		Vsums.append(variance(data,centers))
+	ks =[i for i in range(2,10)]
+	plt.xlabel("nombres de groupes")
+	plt.ylabel("variance")
+	plt.plot(ks,Vsums)
+	plt.scatter(ks,Vsums)
+	plt.show()
 
 
-points = generatepoints(100, 2, max_ = 1000)
-print('points:')
-printMatrix(points)
+#k_means(100,3,3)
 
-k_means(points, 5)
+#elbow(generatepoints(400,4))
+points=read_iris_data("irisData.txt")
+elbow(points)
 
+
+#k_means_iris()
 
