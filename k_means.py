@@ -11,7 +11,6 @@ All data are expected to be floats, except in the first column.
 
 @param filename: csv file name.
 
-
 @return: a list of lists, each list being a row in the data file.
 	Rows are returned in the same order as in the file.
 	They contains floats, except for the 1st element which is a string
@@ -43,7 +42,7 @@ def write_data(datas, filename, writeCluster = False):
 	'''
 	
 	f = open(filename, 'w')
-	f.write(';'.join(["# no_obseravtion"]+["attribut_"+str(i+1) for i in range(len(datas[0])-2)]))
+	f.write(';'.join(["# no_observation"]+["attribut_"+str(i+1) for i in range(len(datas[0])-2)]))
 	if writeCluster:
 		f.write(';'.join(["no_classe"]))
 	f.write('\n')
@@ -70,11 +69,7 @@ def write_centers(centers, filename):
 		f.write('\n')
 	f.close()
 
-
-
 ##################################################  FUNCTIONS #############################################
-
-
 
 '''
 description:
@@ -140,8 +135,6 @@ def choseRandomicCenters(n, points):
 		centers[i][-1] = i
 
 	return centers
-
-
 
 '''
 description:
@@ -346,7 +339,7 @@ def printMatrix(mat, title = ''):
 description:
 	-Read the datas
 	-Save those datas in an adequate form
-	-Choose 3 random centroids among those datas
+	-Choose k random centroids among those datas
 	-Classify datas
 	-Upload several times centroids and datas by calculating groups barycenters
 	-Save datas and centroids in a csv file  
@@ -359,10 +352,12 @@ description:
 	@return:-Centers 
 
 '''
-def k_means(points, k, iris = False):
+def k_means(points, k = 3, maxNumberOfRepetitions = 300, iris = False,):
 	# TODO: verify this write_data
 	fileToWrite = "iris_nonClassifiedDatas.csv" if iris else "nonClassifiedDatas.csv"
 	write_data(points, fileToWrite)
+	if iris:
+		k = 3
 	centers = choseRandomicCenters(k, points)
 	printMatrix(points, 'points')
 	printMatrix(centers, 'centers')
@@ -370,7 +365,7 @@ def k_means(points, k, iris = False):
 	i=0
 	# if there is no change in datas the classification is done and the algorithms stops
 	# also stops if the iterations number reachs the maximum
-	while ((not No_change) and i<300):
+	while ((not No_change) and i<maxNumberOfRepetitions):
 		No_change=classificatePoints(points, centers)
 		printMatrix(points, 'classified points:')
 
@@ -386,8 +381,10 @@ def k_means(points, k, iris = False):
 	write_data(points, fileToWrite, writeCluster = True)
 	fileToWrite = "iris_centers.csv" if iris else "centers.csv"
 	write_centers(centers, fileToWrite)
+	if iris:
+		nbr_errors(points)
 
-	return points,centers
+	return centers
 
 ################################################## Iris Error FUNCTION #############################################
 def nbr_errors(points):
@@ -472,7 +469,7 @@ def elbow(data):
 	Vsums = []
 	for k in range(2,10):
 		print(k)
-		centers = k_means(data, k, iris = True)
+		centers = k_means(data, k)
 		Vsums.append(variance(data,centers))
 	ks =[i for i in range(2,10)]
 	plt.xlabel("nombres de groupes")

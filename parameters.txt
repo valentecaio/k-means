@@ -1,4 +1,6 @@
-irisDataFileName: 'irisData.txt'
-maxNumberOfIterations: 300
-minRandomNumber: 0
-maxRandomNumber: 1000
+maxNumberOfRepetitions: 300
+minRandomNumber: -100
+maxRandomNumber: 100
+numberOfDatas: 20
+dataDimension: 3
+numberOfClusters: 3
