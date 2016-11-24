@@ -1,0 +1,4 @@
+irisDataFileName: 'irisData.txt'
+maxNumberOfIterations: 300
+minRandomNumber: 0
+maxRandomNumber: 1000
