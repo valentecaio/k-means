@@ -481,8 +481,8 @@ def elbow(data):
 	plt.scatter(ks,Vsums)
 	plt.show()
 
-
-#elbow(generatepoints(400,4))
-points = read_iris_data()
-#elbow(points)
+if __name__ == '__main__':
+	#elbow(generatepoints(400,4))
+	points = read_iris_data()
+	#elbow(points)
 
