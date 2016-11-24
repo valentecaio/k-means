@@ -187,15 +187,18 @@ def euclideanDistance(point_1,point_2):
 	'''
 def distance_iris(point_1,point_2):
 	'''
-	computes the euclidian distance taking in consideration the iris parametrs
+	computes the euclidian distance taking in consideration the 		iris parametrs
 	standardized Euclidean distance
 	'''
+	
+	
 	coeff = [0.7826,0.4194,0.9490,0.9565]
 	distance = 0
 	for i in range(1,len(point_1)-1):
 		distance += coeff[i-1]*(point_1[i] - point_2[i])**2
 	distance = distance**0.5
 	return distance
+	
 
 def which_distance(point_1,point_2,iris=False):
 	'''
@@ -364,8 +367,9 @@ description:
 	@return:-Centers 
 
 '''
-def k_means(n,k,d):
-	points = generatepoints(n, d)
+def k_means(points,k):
+	# TODO: points to generate
+	#points = generatepoints(n, d)
 	write_data(points, "nonClassifiedDatas.csv")
 	print('points:')
 	printMatrix(points)
@@ -390,7 +394,8 @@ def k_means(n,k,d):
 		printMatrix(centers)
 		write_centers(centers, "centers.csv")
 		i+=1
-	return points
+		
+	return points,centers
 
 
 '''
@@ -406,18 +411,20 @@ description:
 
 
 '''
-def k_means_iris():
-	points = read_iris_data("irisData.txt")
+def k_means_iris(points,k):
+	# TODO: points
+	#points = read_iris_data("irisData.txt")
 	write_data(points, "iris_nonClassifiedDatas.csv")
 	print('points:')
 	printMatrix(points)
-	centers = choseRandomicCenters(3, points)
+	#TODO: put clusters to 3
+	centers = choseRandomicCenters(k, points)
 	print('centers:')
 	printMatrix(centers)
 	No_change=False
 	i=0
 	#if there is no change in datas the classification is done and the algorithms stops also if the iterations number is above 300
-	while (i<200):
+	while (i<50):
 		No_change=classificatePoints(points, centers,True)
 		print('classified points:')
 		printMatrix(points)
@@ -432,8 +439,9 @@ def k_means_iris():
 		printMatrix(centers)
 		write_centers(centers, "iris_centers.csv")
 		i+=1
-	nbr_errors(points)
+	#nbr_errors(points)
 	return centers
+	
 
 ################################################## Iris Error FUNCTION #############################################
 def nbr_errors(points):
@@ -494,9 +502,46 @@ def nbr_errors(points):
 	print("Le nombre d'erreurs est: ",error)
 	return error
 
+################################################## Iris TESTS (Elbow method) #############################################
+
+def variance(data,centers):
+	'''
+	computes the sum of squared error of a kmeans call
+	'''
+	V = 0
+	groupsNumber=len(centers)
+	for i in range (groupsNumber):
+		partition=pointsOfGroup(data,i)
+		for point in partition :
+			dist = euclideanDistance(point,centers[i])
+			V += (dist)**2
+		return V
+
+def elbow(data):
+	'''
+	draws the elbow graph of 9 kmeans call for k from 2 to 9
+	'''
+	import matplotlib.pyplot as plt
+	
+	Vsums = []
+	for k in range(2,10):
+		print(k)
+		centers = k_means_iris(data,k)
+		Vsums.append(variance(data,centers))
+	ks =[i for i in range(2,10)]
+	plt.xlabel("nombres de groupes")
+	plt.ylabel("variance")
+	plt.plot(ks,Vsums)
+	plt.scatter(ks,Vsums)
+	plt.show()
 
 
 #k_means(100,3,3)
 
+#elbow(generatepoints(400,4))
+points=read_iris_data("irisData.txt")
+elbow(points)
 
-k_means_iris()
+
+#k_means_iris()
+
