@@ -13,7 +13,7 @@ How it works:
 	Press 2 if you want to test the k-means algorythm with the predefined iris data.
 
 Results:
-	The results will be written in the format CSN in the files "centers.txt" and "results.txt"
+	The results will be written in the format CSV in the files "centers.txt" and "results.txt"
 
 ##If datas appears in one column in your (csv) file: 
 -->you should change your area settings and put the lists divider to ";" instead of "," 
